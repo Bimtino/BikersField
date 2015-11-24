@@ -1,8 +1,9 @@
 <resources>
     <string id="AppName">BikersField</string>
-    <string id="pace">SPEED</string>
-    <string id="avgpace">AVG SPEED</string>
+    <string id="pace">Speed</string>
+    <string id="avgpace">Ø Speed</string>
     <string id="hr">HR</string>
-    <string id="distance">DIST</string>
-    <string id="duration">DURATION</string>
+    <string id="distance">Distance</string>
+    <string id="duration">Duration</string>
+    <string id="cadence">Cad</string>
 </resources>

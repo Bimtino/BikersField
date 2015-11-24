@@ -20,6 +20,7 @@ class BikersView extends Ui.DataField {
     hidden const CENTER = Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER;
     hidden const HEADER_FONT = Graphics.FONT_XTINY;
     hidden const VALUE_FONT = Graphics.FONT_NUMBER_MEDIUM;
+    hidden const HOT_FONT = Graphics.FONT_NUMBER_HOT;
     hidden const ZERO_TIME = "0:00";
     hidden const ZERO_DISTANCE = "0.00";
     
@@ -34,9 +35,10 @@ class BikersView extends Ui.DataField {
     hidden var batteryBackground = Graphics.COLOR_WHITE;
     hidden var batteryColor1 = Graphics.COLOR_GREEN;
     hidden var hrColor = Graphics.COLOR_RED;
+    hidden var cadColor = Graphics.COLOR_BLUE;
     hidden var headerColor = Graphics.COLOR_DK_GRAY;
         
-    hidden var paceStr, avgPaceStr, hrStr, distanceStr, durationStr;
+    hidden var paceStr, avgPaceStr, hrStr, distanceStr, durationStr, cadenceStr;
     
     hidden var paceData = new DataQueue(10);
     hidden var avgSpeed= 0;
@@ -44,6 +46,7 @@ class BikersView extends Ui.DataField {
     hidden var distance = 0;
     hidden var elapsedTime = 0;
     hidden var gpsSignal = 0;
+    hidden var cadence = 0;
     
     hidden var hasBackgroundColorOption = false;
     
@@ -63,6 +66,7 @@ class BikersView extends Ui.DataField {
         elapsedTime = info.elapsedTime != null ? info.elapsedTime : 0;        
         hr = info.currentHeartRate != null ? info.currentHeartRate : 0;
         distance = info.elapsedDistance != null ? info.elapsedDistance : 0;
+        cadence = info.currentCadence != null ? info.currentCadence : 0;
         gpsSignal = info.currentLocationAccuracy;
     }
     
@@ -96,6 +100,7 @@ class BikersView extends Ui.DataField {
         hrStr = Ui.loadResource(Rez.Strings.hr);
         distanceStr = Ui.loadResource(Rez.Strings.distance);
         durationStr = Ui.loadResource(Rez.Strings.duration);
+        cadenceStr = Ui.loadResource(Rez.Strings.cadence);
     }
     
     function setColors() {
@@ -104,7 +109,7 @@ class BikersView extends Ui.DataField {
             textColor = (backgroundColor == Graphics.COLOR_BLACK) ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
             inverseTextColor = (backgroundColor == Graphics.COLOR_BLACK) ? Graphics.COLOR_WHITE : Graphics.COLOR_WHITE;
             inverseBackgroundColor = (backgroundColor == Graphics.COLOR_BLACK) ? Graphics.COLOR_DK_GRAY: Graphics.COLOR_BLACK;
-            hrColor = (backgroundColor == Graphics.COLOR_BLACK) ? Graphics.COLOR_BLUE : Graphics.COLOR_RED;
+            hrColor = (backgroundColor == Graphics.COLOR_BLACK) ? Graphics.COLOR_RED : Graphics.COLOR_RED;
             headerColor = (backgroundColor == Graphics.COLOR_BLACK) ? Graphics.COLOR_LT_GRAY: Graphics.COLOR_DK_GRAY;
             batteryColor1 = (backgroundColor == Graphics.COLOR_BLACK) ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_GREEN;
         }
@@ -133,11 +138,11 @@ class BikersView extends Ui.DataField {
         
         //hr
         dc.setColor(hrColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(109, 70, VALUE_FONT, hr.format("%d"), CENTER);
+        dc.drawText(109, 70, HOT_FONT, hr.format("%d"), CENTER);
         
         //apace
         dc.setColor(textColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(57, 130, VALUE_FONT, getSpeed(avgSpeed), CENTER);
+        dc.drawText(170 , 70, VALUE_FONT, getSpeed(avgSpeed), CENTER);
         
         //distance
         var distStr;
@@ -151,7 +156,7 @@ class BikersView extends Ui.DataField {
         } else {
             distStr = ZERO_DISTANCE;
         }
-        dc.drawText(170 , 70, VALUE_FONT, distStr, CENTER);
+        dc.drawText(50, 130, VALUE_FONT, distStr, CENTER);
         
         //duration
         var duration;
@@ -173,7 +178,11 @@ class BikersView extends Ui.DataField {
         } else {
             duration = ZERO_TIME;
         } 
-        dc.drawText(158, 130, VALUE_FONT, duration, CENTER);
+        dc.drawText(170, 130, VALUE_FONT, duration, CENTER);
+
+        //cad
+        dc.setColor(cadColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(109, 130, VALUE_FONT, cadence.format("%d"), CENTER);
         
         //signs background
         dc.setColor(inverseBackgroundColor, inverseBackgroundColor);
@@ -199,10 +208,11 @@ class BikersView extends Ui.DataField {
         // headers:
         dc.setColor(headerColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(50, 38, HEADER_FONT, paceStr, CENTER);
-        dc.drawText(57, 165, HEADER_FONT, avgPaceStr, CENTER);
+        dc.drawText(50, 165, HEADER_FONT, distanceStr, CENTER);
         dc.drawText(109, 38, HEADER_FONT, hrStr, CENTER); 
-        dc.drawText(170, 38, HEADER_FONT, distanceStr, CENTER);
-        dc.drawText(158, 165, HEADER_FONT, durationStr, CENTER);
+        dc.drawText(170, 38, HEADER_FONT, avgPaceStr, CENTER);
+        dc.drawText(170, 165, HEADER_FONT, durationStr, CENTER);
+        dc.drawText(109, 165, HEADER_FONT, cadenceStr, CENTER);
         
         //grid
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
@@ -285,7 +295,7 @@ class BikersView extends Ui.DataField {
     function getSpeed(speedMetersPerSecond) {
         if (speedMetersPerSecond != null && speedMetersPerSecond > 0.2) {
             var kmOrMilesPerHour = speedMetersPerSecond * 60.0 * 60.0 / kmOrMileInMeters;
-            return kmOrMilesPerHour.format("%.2f");
+            return kmOrMilesPerHour.format("%.1f");
         }
         return ZERO_TIME;
     }
